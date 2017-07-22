@@ -1,0 +1,14 @@
+lp3-core
+
+[deps]
+gsl
+boost
+catch
+
+[files]
+{appveyor.yml} -> ../appveyor.yml
+{ci.py} -> ../ci.py
+CMakeLists.txt -> ../CMakeLists.txt
+README.md -> ../README.md
+{travis.yml} -> ../.travis.yml
+
