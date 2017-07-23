@@ -67,24 +67,32 @@ boost::optional<Line> Reader::read() {
 }
 
 Tokenizer::Tokenizer()
-:   m(Mode::outer_space),
+:   line_number(0),
+    m(Mode::outer_space),
     indent_level(0),
     text()
 {}
 
 Token Tokenizer::read(const Line & l) {
+    ++ line_number;
     switch(m) {
         case Mode::outer_space:
             if (l.starts_with_doc_line()) {
-                m = Mode::section_header;
+                m = (line_number <= 2
+                        ? Mode::big_header : Mode::section_header);
                 text.str("");
                 text.clear();
             }
             return Token{};
+        case Mode::big_header:
         case Mode::section_header:
             if (l.starts_with_doc_line()) {
+                const Token t{
+                    (m == Mode::big_header
+                        ? TokenType::big_header : TokenType::section_header),
+                    text.str()
+                };
                 m = Mode::section_text;
-                const Token t{TokenType::section_header, text.str() };
                 text.str("");
                 text.clear();
                 return t;
@@ -113,11 +121,14 @@ Token Tokenizer::read(const Line & l) {
             return Token{};
         case Mode::class_code:
         case Mode::nonclass_code:
-            if ((m == Mode::class_code && l.end_class_marker())
-                    ||
-                    (l.end_marker())
-               ) {
+            if (m == Mode::class_code && l.end_class_marker()) {
                 text << "    " << l.text();
+                m = Mode::outer_space;
+                const Token t{TokenType::code, text.str()};
+                text.str("");
+                text.clear();
+                return t;
+            } else if (l.end_marker()) {
                 m = Mode::outer_space;
                 const Token t{TokenType::code, text.str()};
                 text.str("");
@@ -138,7 +149,7 @@ Token Tokenizer::read(const Line & l) {
     }
 }
 
-std::vector<Token> read_file(const boost::filesystem::path path) {
+std::vector<Token> read_header_file(const boost::filesystem::path path) {
     Reader reader(path);
 
     Tokenizer tokenizer;
@@ -154,7 +165,10 @@ std::vector<Token> read_file(const boost::filesystem::path path) {
         }
     }
 
+    tokens.push_back(Token{TokenType::eof, ""});
     return tokens;
 }
+
+
 
 }   // end namespace

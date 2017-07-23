@@ -24,23 +24,30 @@ std::string str(TokenType t) {
 int main() {
     fs::path p{"include/markule.hpp"};
 
-    auto tokens = markule::read_file(p);
+    auto tokens = markule::read_header_file(p);
 
-    int header_depth = 0;
+    int header_depth = 1;
     for (const auto & t : tokens) {
         switch(t.type) {
             case TokenType::none:
                 std::cout << "                I don't know what this is.";
                 break;
+            case TokenType::big_header:
             case TokenType::section_header:
                 std::cout << std::string(header_depth, '#') << " "
                           << t.text << "\n\n";
+                if (t.type == TokenType::big_header) {
+                    ++ header_depth;
+                }
                 break;
             case TokenType::section_text:
                 std::cout << t.text << "\n\n";
                 break;
             case TokenType::code:
                 std::cout << "```c++\n" << t.text << "\n```\n\n";
+                break;
+            case TokenType::eof:
+                -- header_depth;
                 break;
             default:
                 break;

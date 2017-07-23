@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------
-// markule
+// markule.hpp
 // --------------------------------------------------------------------
 //      Markule is a tool that takes a directory representing a module
 //      of C++ code with MarkDown comments and translates it to a
@@ -75,12 +75,26 @@ private:
     std::ifstream file;
 };
 
+// --------------------------------------------------------------------
+// TokenType
+// --------------------------------------------------------------------
+//      The various types of tokens.
+// --------------------------------------------------------------------
+
 enum class TokenType {
     none,
+    big_header,
     section_header,
     section_text,
-    code
+    code,
+    eof
 };
+
+// --------------------------------------------------------------------
+// Token
+// --------------------------------------------------------------------
+//      Stores the type of token and the text.
+// --------------------------------------------------------------------
 
 struct Token {
     TokenType type;
@@ -100,28 +114,45 @@ struct Token {
     }
 };
 
-enum class Mode {
-    outer_space,
-    section_header,
-    section_text,
-    unknown_code,
-    class_code,
-    nonclass_code,
-};
-
+// --------------------------------------------------------------------
+// Tokenizer
+// --------------------------------------------------------------------
+//      When fed lines repeatedly returns token. Maintains internal
+//      state based on what it's seen.
+// --------------------------------------------------------------------
 class Tokenizer {
 public:
+    enum class Mode {
+        outer_space,
+        big_header,
+        section_header,
+        section_text,
+        unknown_code,
+        class_code,
+        nonclass_code,
+    };
+
     Tokenizer();
 
     Token read(const Line & line);
 
 private:
+    int line_number;
     Mode m;
     int indent_level;
     std::stringstream text;
 };
 
-std::vector<Token> read_file(const boost::filesystem::path path);
+
+// --------------------------------------------------------------------
+// read_file
+// --------------------------------------------------------------------
+//      Parses a file and returns a vector of tokens.
+// --------------------------------------------------------------------
+std::vector<Token> read_header_file(const boost::filesystem::path path);
+
+// end-doc
+
 
 }   // end namespace
 
