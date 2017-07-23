@@ -21,6 +21,7 @@ addons:
       - libstdc++6
       - ninja-build
       - libboost-dev
+      - libboost-filesystem-dev
 env: COMPILER=g++-6
 
 

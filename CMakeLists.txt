@@ -1,37 +1,80 @@
 # *********************************************************************
-# Mod Down
+# Markule
 #   Translates header files with markdown in them to one big
 #   markdown document.
 # *********************************************************************
-project(lp3_moddown CXX)
+project(lp3_markule CXX)
 cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
 
-add_library(Lp3_ModDown
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/moddown.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/moddown.cpp
+###############################################################################
+#  Third Party libraries
+###############################################################################
+
+set(DEPS_PATH "${CMAKE_CURRENT_SOURCE_DIR}/build/deps")
+
+### Guidelines Support Library
+
+add_library(lp3_deps::gsl INTERFACE IMPORTED)
+set_property(TARGET lp3_deps::gsl PROPERTY
+    INTERFACE_INCLUDE_DIRECTORIES
+    "${DEPS_PATH}/gsl/include")
+
+
+### Boost
+
+find_package(Boost REQUIRED)
+add_library(lp3_deps::boost INTERFACE IMPORTED)
+set_property(TARGET lp3_deps::boost PROPERTY
+    INTERFACE_INCLUDE_DIRECTORIES "${Boost_INCLUDE_DIR}")
+
+
+### Boost File System
+
+add_library(lp3_deps::boost_filesystem INTERFACE IMPORTED)
+find_package(Boost COMPONENTS filesystem system REQUIRED)
+set_property(TARGET lp3_deps::boost_filesystem PROPERTY
+    INTERFACE_LINK_LIBRARIES "${Boost_FILESYSTEM_LIBRARY}")
+
+
+### Catch
+
+add_library(lp3_deps::catch INTERFACE IMPORTED)
+set_property(TARGET lp3_deps::catch PROPERTY
+    INTERFACE_INCLUDE_DIRECTORIES
+    "${DEPS_PATH}/Catch/single_include")
+
+###############################################################################
+#  Lib
+###############################################################################
+
+add_library(Lp3_Markule
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/markule.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/markule.cpp
 )
 
-target_include_directories(Lp3_ModDown
+target_include_directories(Lp3_Markule
     PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
     PRIVATE
         src)
 
-install(TARGETS Lp3_ModDown EXPORT Lp3_ModDown_Config
+install(TARGETS Lp3_Markule EXPORT Lp3_Markule_Config
     ARCHIVE  DESTINATION lib
     LIBRARY  DESTINATION lib
     RUNTIME  DESTINATION bin)
 install(DIRECTORY include/ DESTINATION include)
 
-install(EXPORT Lp3_ModDown_Config DESTINATION share/Lp3_ModDown/cmake)
+install(EXPORT Lp3_Markule_Config DESTINATION share/Lp3_Markule/cmake)
 
-export(TARGETS Lp3_ModDown FILE Lp3_ModDown_Config.cmake)
+export(TARGETS Lp3_Markule FILE Lp3_Markule_Config.cmake)
 
-add_executable(moddown ${CMAKE_CURRENT_SOURCE_DIR}/src/moddown-cli.cpp)
-target_link_libraries(moddown Lp3_ModDown)
+target_link_libraries(Lp3_Markule lp3_deps::boost Boost::filesystem
+                      lp3_deps::gsl)
 
-if (LP3_SETUP_FOLDERS)
-    set_target_properties (Lp3_ModDown PROPERTIES FOLDER ModDown)
-    set_target_properties (moddown PROPERTIES FOLDER ModDown)
-endif()
+###############################################################################
+#  exe
+###############################################################################
+
+add_executable(markule ${CMAKE_CURRENT_SOURCE_DIR}/src/markule-cli.cpp)
+target_link_libraries(markule Lp3_Markule)

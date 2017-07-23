@@ -1,8 +1,12 @@
 lp3-core
 
+[properties]
+ci_cmake_path=./
+
 [deps]
 gsl
 boost
+boost-filesystem
 catch
 
 [files]

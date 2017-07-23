@@ -15,4 +15,5 @@ For an example of what this looks like please see [the parent project used for C
 
 * The [Guideline Support Library](https://github.com/Microsoft/GSL), defined as the imported interface library `gsl`.
 * [The Boost libraries](http://www.boost.org/) (header only) must be defined as the imported interface library `boost`.
+* [Boost File System](http://www.boost.org/doc/libs/1_64_0/libs/filesystem/doc/index.htm) Must be defined as `lp3_deps::boost_filesystem`.
 * [Catch](https://github.com/philsquared/Catch), defined as the imported interface library `catch`.
