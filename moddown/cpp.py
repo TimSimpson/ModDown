@@ -157,7 +157,7 @@ class Tokenizer(object):
 
     def _case_class_code(self, l: Line) -> Optional[Token]:
         if l.end_class_marker():
-            text.append('    {}'.format(l.text()))
+            self._text.append('    {}'.format(l.text()))
             self._m = Mode.OUTER_SPACE
             t = Token(TokenType.CODE, self._text, self._line_number)
             self._text = []
