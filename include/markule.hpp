@@ -115,12 +115,12 @@ struct Token {
 };
 
 // --------------------------------------------------------------------
-// Tokenizer
+// HeaderTokenizer
 // --------------------------------------------------------------------
-//      When fed lines repeatedly returns token. Maintains internal
-//      state based on what it's seen.
+//      When fed lines from a header file repeatedly returns tokens.
+//      Maintains internal state based on what it's seen.
 // --------------------------------------------------------------------
-class Tokenizer {
+class HeaderTokenizer {
 public:
     enum class Mode {
         outer_space,
@@ -132,7 +132,7 @@ public:
         nonclass_code,
     };
 
-    Tokenizer();
+    HeaderTokenizer();
 
     Token read(const Line & line);
 
@@ -142,6 +142,37 @@ private:
     int indent_level;
     std::stringstream text;
 };
+
+
+// --------------------------------------------------------------------
+// MarkdownTokenizer
+// --------------------------------------------------------------------
+//      When fed lines from a markdown file repeatedly returns tokens.
+//      Maintains internal state based on what it's seen.
+// --------------------------------------------------------------------
+class MarkdownTokenizer {
+public:
+    enum class Mode {
+        outer_space,
+        big_header,
+        section_header,
+        section_text,
+        unknown_code,
+        class_code,
+        nonclass_code,
+    };
+
+    HeaderTokenizer();
+
+    Token read(const Line & line);
+
+private:
+    int line_number;
+    Mode m;
+    int indent_level;
+    std::stringstream text;
+};
+
 
 
 // --------------------------------------------------------------------

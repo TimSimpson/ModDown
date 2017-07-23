@@ -66,14 +66,14 @@ boost::optional<Line> Reader::read() {
     }
 }
 
-Tokenizer::Tokenizer()
+HeaderTokenizer::HeaderTokenizer()
 :   line_number(0),
     m(Mode::outer_space),
     indent_level(0),
     text()
 {}
 
-Token Tokenizer::read(const Line & l) {
+Token HeaderTokenizer::read(const Line & l) {
     ++ line_number;
     switch(m) {
         case Mode::outer_space:
@@ -152,7 +152,7 @@ Token Tokenizer::read(const Line & l) {
 std::vector<Token> read_header_file(const boost::filesystem::path path) {
     Reader reader(path);
 
-    Tokenizer tokenizer;
+    HeaderTokenizer tokenizer;
 
     boost::optional<Line> line;
 
